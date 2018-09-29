@@ -24,7 +24,8 @@ var subscriberDetails = {
     OS: '',
     subscribedURL: '',
     subscribedDate: '',
-    geoLocation:''
+    geoLocation:'',
+    vap_id:''
 };
 
 var subscriberPromise = '';
@@ -53,6 +54,23 @@ function getSubscriberDetails() {
     });
 }
 
+getUserSubscription= function () {
+           return new Promise(function(resolve,reject){
+                        navigator.serviceWorker.register('service-worker.js').then(function (serviceWorkerRegistration) {
+              serviceWorkerRegistration.pushManager.getSubscription().then(function (e) {
+                if (e) {
+	          resolve(btoa(String.fromCharCode.apply(null, new Uint8Array(e.getKey("p256dh")))));
+                } else {
+                 resolve(false);
+                }
+              }).catch(function () {
+               resolve(false);
+              });
+            })
+           })
+             
+          }
+
 if ('serviceWorker' in navigator) {
     /* Register service worker */
     navigator.serviceWorker.register('service-worker.js').then(function (reg) {
@@ -76,41 +94,45 @@ if ('serviceWorker' in navigator) {
 
                             getSubscriberDetails(); // for getting all the details of subscriber
                             subscriberPromise.then(function (res) { //sending the subscriber details to the api 
-                                console.log('subscriber_data', res);
-                                fetch("https://www.engageto.com:8081/v1/node/domains/subscribers", {
-                                    method: 'post',
-                                    headers: {
-                                        "Content-type": "application/json"
-                                    },
-                                    body: JSON.stringify(res)
-                                }).then(function (response) {
-                                    if (response.status !== 200) {// checks the response status is success or not 
-                                        console.log('Looks like there was a problem. Status Code: ' + response.status);
-                                        return;
-                                    } else {// if success call the api and post subscriber token and subdomain_id 
-                                        fetch("/userSubscribed", {
-                                            method: 'post',
-                                            headers: {
-                                                "Content-type": "application/json"
-                                            },
-                                            body: JSON.stringify({
-                                                subscriber_token: currentToken,
-                                                subdomain_id: subdomainid
-                                            })
-                                        }).then(function (response) {
-                                            if (response.status !== 200) {
-                                                console.log('Looks like there was a problem. Status Code: ' + response.status);
-                                                return;
-                                            } else {
-                                                console.log('Successfully sent welcome notification');
-                                            }
-                                        }).catch(function (err) {
-                                            console.log('Fetch Error :-S', err);
-                                        });
-                                    }
-                                }).catch(function (err) {
-                                    console.log('Fetch Error :-S', err);
-                                });
+                                getUserSubscription().then(function(id){
+                                    console.log(id,"vapid");
+                                    subscriberDetails.vap_id = id;
+                                    fetch("https://www.engageto.com:8081/v1/node/domains/subscribers", {
+                                        method: 'post',
+                                        headers: {
+                                            "Content-type": "application/json"
+                                        },
+                                        body: JSON.stringify(res)
+                                    }).then(function (response) {
+                                        if (response.status !== 200) {// checks the response status is success or not 
+                                            console.log('Looks like there was a problem. Status Code: ' + response.status);
+                                            return;
+                                        } else {// if success call the api and post subscriber token and subdomain_id 
+                                            fetch("/userSubscribed", {
+                                                method: 'post',
+                                                headers: {
+                                                    "Content-type": "application/json"
+                                                },
+                                                body: JSON.stringify({
+                                                    subscriber_token: currentToken,
+                                                    subdomain_id: subdomainid
+                                                })
+                                            }).then(function (response) {
+                                                if (response.status !== 200) {
+                                                    console.log('Looks like there was a problem. Status Code: ' + response.status);
+                                                    return;
+                                                } else {
+                                                    console.log('Successfully sent welcome notification');
+                                                }
+                                            }).catch(function (err) {
+                                                console.log('Fetch Error :-S', err);
+                                            });
+                                        }
+                                    }).catch(function (err) {
+                                        console.log('Fetch Error :-S', err);
+                                    });
+                                })
+                                
                             }).catch(function (err) {
                                 console.log('Handle rejected promise (' + err + ') here.');
                             });
