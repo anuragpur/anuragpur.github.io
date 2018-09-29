@@ -96,7 +96,7 @@ if ('serviceWorker' in navigator) {
                             subscriberPromise.then(function (res) { //sending the subscriber details to the api 
                                 getUserSubscription().then(function(id){
                                     console.log(id,"vapid");
-                                    subscriberDetails.vap_id = id;
+                                    subscriberDetails.vapId = id;
                                     fetch("https://www.engageto.com:8081/v1/node/domains/subscribers", {
                                         method: 'post',
                                         headers: {
