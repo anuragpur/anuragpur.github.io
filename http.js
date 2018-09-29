@@ -25,7 +25,7 @@ var subscriberDetails = {
     subscribedURL: '',
     subscribedDate: '',
     geoLocation:'',
-    vap_id:''
+    vapId:''
 };
 
 var subscriberPromise = '';
