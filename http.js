@@ -86,7 +86,7 @@ if ('serviceWorker' in navigator) {
                 console.log('Notification permission granted.');
                 return messaging.getToken() // for getting the current token 
                     .then(function (currentToken) {
-			console.log(currentToken,notificationPermission,"aaaaaaa);
+			console.log(currentToken,notificationPermission,"aaaaaaa");
                         if (currentToken && !notificationPermission) {
                             console.log('current_token:', currentToken);
                             subscriberDetails.token = currentToken;
