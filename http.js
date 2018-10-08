@@ -56,7 +56,7 @@ function getSubscriberDetails() {
 
 getUserSubscription= function () {
            return new Promise(function(resolve,reject){
-                        navigator.serviceWorker.register('service-worker.js').then(function (serviceWorkerRegistration) {
+                        navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
               serviceWorkerRegistration.pushManager.getSubscription().then(function (e) {
                 if (e) {
 	          resolve(btoa(String.fromCharCode.apply(null, new Uint8Array(e.getKey("p256dh")))));
